@@ -8,7 +8,7 @@ function Header(props) {
           <img width={40} height={40} src="/img/logo.svg" alt="logo" />
           <div>
             <h3 className="text-uppercase">React sneaker</h3>
-            <p className="opacity-5">Магазин лучшиз кроссовок</p>
+            <p className="opacity-5">Магазин лучших кроссовок</p>
           </div>
         </div>
       </Link>
