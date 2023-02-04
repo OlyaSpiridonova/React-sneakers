@@ -32,6 +32,7 @@ function Drawer({ onClose, items = [], onRemove, opened }) {
       }
     } catch (error) {
       alert('Не удалось создать заказ:(');
+      console.error(error);
     }
     setIsLoading(false);
   };
