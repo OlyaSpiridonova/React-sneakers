@@ -1,19 +1,44 @@
 import { useContext, useState } from 'react';
-import { AppContext } from '../App';
-import Info from './Card/Info';
+import { AppContext } from '../../App';
 
-function Drawer({ onClose, items = [], onRemove }) {
-  const { setCartItems } = useContext(AppContext);
+import Info from '../Card/Info';
+import axios from 'axios';
+
+import styles from '../Drawer/Drawer.module.scss';
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function Drawer({ onClose, items = [], onRemove, opened }) {
+  const ordersData = 'https://63cd31e7d4d47898e39442f7.mockapi.io/orders';
+  const cartData = 'https://63cab12bf36cbbdfc75e1592.mockapi.io/cart';
+  const { cartItems, setCartItems } = useContext(AppContext);
+  const [orderId, setOrderId] = useState(null);
   const [isOrderComplete, setIsOrderComplete] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const totalPrice = cartItems.reduce((sum, obj) => obj.price + sum, 0);
 
-  const onClickOrder = () => {
-    setIsOrderComplete(true);
-    setCartItems([]);
+  const onClickOrder = async () => {
+    try {
+      setIsLoading(true);
+      const { data } = await axios.post(ordersData, { items: cartItems });
+      setOrderId(data.id);
+      setIsOrderComplete(true);
+      setCartItems([]);
+
+      for (let i = 0; i < cartItems.length; i++) {
+        const item = cartItems[i];
+        await axios.delete(`${cartData}/${item.id}`);
+        await delay(1000);
+      }
+    } catch (error) {
+      alert('Не удалось создать заказ:(');
+    }
+    setIsLoading(false);
   };
 
   return (
-    <div className="overlay">
-      <div className="drawer">
+    <div className={`${styles.overlay} ${opened ? styles.overlayVisible : ''}`}>
+      <div className={styles.drawer}>
         <h2 className="d-flex justify-between mb-30">
           Корзина
           <img
@@ -55,16 +80,20 @@ function Drawer({ onClose, items = [], onRemove }) {
                 <li>
                   <span>Итого:</span>
                   <div></div>
-                  <b>21 498 руб.</b>
+                  <b>{totalPrice} руб.</b>
                 </li>
 
                 <li>
                   <span>Налог 5%: </span>
                   <div></div>
-                  <b>1074 руб.</b>
+                  <b>{(totalPrice / 100) * 5} руб.</b>
                 </li>
               </ul>
-              <button onClick={onClickOrder} className="greenButton">
+              <button
+                disabled={isLoading}
+                onClick={onClickOrder}
+                className="greenButton"
+              >
                 Оформить заказ
                 <img src="/img/row.svg" alt="arrow" />
               </button>
@@ -75,7 +104,7 @@ function Drawer({ onClose, items = [], onRemove }) {
             title={isOrderComplete ? 'Заказ оформлен!' : 'Корзина пустая'}
             description={
               isOrderComplete
-                ? 'Ваш заказ #18 скоро будет передан курьерской доставке'
+                ? `Ваш заказ #${orderId} скоро будет передан курьерской доставке`
                 : 'Добавьте хотя бы одну пару кроссовок, чтобы сделать заказ.'
             }
             image={

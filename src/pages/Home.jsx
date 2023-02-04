@@ -1,4 +1,4 @@
-import Card from '../components/Card/Card';
+import Card from '../components/Card/index';
 
 function Home({
   items,
@@ -14,13 +14,13 @@ function Home({
       item.title.toLowerCase().includes(searchValue.toLowerCase())
     );
 
-    return (isLoading ? [...Array(8)] : filtredItems).map((item) => (
+    return (isLoading ? [...Array(8)] : filtredItems).map((item, index) => (
       <Card
         {...item}
         onFavorite={(obj) => onAddToFavorite(obj)}
         onPlus={(obj) => onAddToCart(obj)}
         loading={isLoading}
-        key={item && item.id}
+        key={index}
       />
     ));
   };

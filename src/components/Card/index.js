@@ -5,10 +5,10 @@ import ContentLoader from 'react-content-loader';
 import styles from './Card.module.scss';
 
 function Card({
+  id,
   title,
   price,
   imageUrl,
-  id,
   onFavorite,
   onPlus,
   favorited = false,
@@ -16,13 +16,14 @@ function Card({
 }) {
   const { isItemAdded } = useContext(AppContext);
   const [isFavorite, setIsFavorite] = useState(favorited);
+  const obj = { id, parentId: id, title, price, imageUrl };
 
   const handlePlus = () => {
-    onPlus({ title, price, imageUrl, id });
+    onPlus(obj);
   };
 
   const onClickFavorite = () => {
-    onFavorite({ id, title, price, imageUrl });
+    onFavorite(obj);
     setIsFavorite(!isFavorite);
   };
   return (
